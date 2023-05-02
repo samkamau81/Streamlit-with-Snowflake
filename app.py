@@ -4,10 +4,30 @@ import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 from bs4 import BeautifulSoup
+from snowflake.snowpark import Session
 
 #instantiate NLP model
 tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
 model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+
+# Establish Snowflake session
+@st.cache_resource
+def create_session():
+    return Session.builder.configs(st.secrets.snowflake).create()
+
+session = create_session()
+st.success("Connected to Snowflake!")
+
+# Load data table
+@st.cache_data
+def load_data(table_name):
+    ## Read in data table
+    table = session.table(table_name)
+    ## Do some computation on it
+    table = table.limit(100)    
+    ## Collect the results. This will run the query and download the data
+    table = table.collect()
+    return table
 
 # Comming up with functions
 def causes(text): 
@@ -31,11 +51,14 @@ def causes(text):
             relationship+=1
         elif i == 'work':
             work+=1
-            
+
+    sum=family+finance+school+relationship+work
+    df0=pd.DataFrame([[family,finance,school,relationship,work]], columns=['Family','Finance','School','Relationship','Work'])      
+
+    if sum!=0:
+        st.markdown("<h3 style='text-align:center;'>Environment that contributes the most to your issue is as shown; </h3>",unsafe_allow_html=True)
+        st.bar_chart(df0, width=200, height=200, use_container_width=True)
     
-    return(st.bar_chart([family,finance,school,relationship,work], width=1000, height=1000, use_container_width=True))
-
-
 def predict_polarity(text):
     #determines the polarity of each answer given by an individual
     tokens = tokenizer.encode(text, return_tensors='pt')
@@ -52,22 +75,30 @@ def avg_sentiment(lis1,lis2):
     avg_f_val=sum(f_val)/len(f_val)
     return avg_f_val
 
-        
 
+#Defining Tables in the Snowflake Database
+psych_info = "PSYCHOLOGY_DATABASE.PUBLIC.LOCATION_REVIEW"
+psych_advise="PSYCHOLOGY_DATABASE.PUBLIC.SOLUTION"
+
+#Putting Tables in DataFrames
+df1 = load_data(psych_info)
+Loc_Info=pd.DataFrame(df1)
+df2 = load_data(psych_advise)
+Advise_info=pd.DataFrame(df2)
 
 # Set the app title
-st.title("Psychological Support App")
-
-st.image("https://cdn.pixabay.com/photo/2017/02/13/08/54/brain-2062057__340.jpg")
-
-st.markdown("*** A simple machine laerning app to predict the the mental state of people and give advice on the way forward ***")
-st.markdown("-------")
-st.markdown("# Questionnaire")
-
-st.markdown("## Answer these few questions to help me understand your situation more , Be very descriptive and fill every field")
+st.image("https://raw.githubusercontent.com/samkamau81/Streamlit-with-Snowflake/main/mentalmuse.JPG?token=GHSAT0AAAAAAB3OTCLFHYQGUQEO47ZJV3PAZCQYPZA")
+#st.markdown("<h1 style='text-align:center;'>Big Headline</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;'> AI FOR MENTAL HEALTH </h1>",unsafe_allow_html=True)
 
 st.markdown("-------")
-form = st.form(key="my_form")
+st.markdown("<h2 style='text-align:center;'> Questionnaire </h2>",unsafe_allow_html=True)
+
+st.markdown("<h3 style='text-align:center;'> Answer these few questions to help me understand your situation more</h3>",unsafe_allow_html=True)
+st.markdown("<h4 style='text-align:center;'> Be very descriptive and fill every field if possible</h4>",unsafe_allow_html=True)
+
+st.markdown("-------")
+form = st.form(key="my_form", clear_on_submit=True)
 
 que0=form.selectbox("County of Resisdence",options=['Nairobi','Nakuru','Nyeri'])
 
@@ -95,34 +126,47 @@ weights=[20,10,10,10,10,10,15,15]
 ques=[que1, que2, que4, que5, que7, que8, que9,que10]
 
 b1=form.form_submit_button('Results')
-b2=st.button('Clear')
 
-st.markdown("-------")
-
-st.markdown("# Results")
+st.markdown("<h2 style='text-align:center;'>Your Results from my analysis are; </h2>",unsafe_allow_html=True)
 
 if b1:
-    causes(que2)
-    avg_value=avg_sentiment(ques,weights)
-    st.write("This is Percentage level of your stress ", (100-avg_value))
+    
+    avg_value=100-(avg_sentiment(ques,weights))
+    if avg_value!=50:
+        st.metric(label="### Stress Level", value=avg_value, delta=(avg_value-50) ,delta_color="inverse")
+        #stress level and actions to be taken
+        for i in range(len(Advise_info)):
+            if avg_value >= (Advise_info.iloc[i, 0]):
+                st.write("### Advice: ", Advise_info.iloc[i, 1])
+                break    
+
+            #Location to seek more medical attention
+ 
+        for j in range(len(Loc_Info)):
+            if que0 == Loc_Info.iloc[j,1]:
+                st.write("### Visit : "+" "+str(Loc_Info.iloc[j, 0])+" "+"whose reviews are "+" "+str(Loc_Info.iloc[j, 2])+"/5"+" "+"within"+" "+str(Loc_Info.iloc[j, 1])+" "+"at"+" "+str(Loc_Info.iloc[j, 3]))
 
 
-elif b2:
-    st.session_state['que1'] = ''  
-    st.session_state['que2'] = ''  
-    st.session_state['que4'] = ''  
-    st.session_state['que5'] = ''  
-    st.session_state['que7'] = ''  
-    st.session_state['que8'] = ''  
-    st.session_state['que9'] = ''  
-    st.session_state['que10'] = ''  
+        causes(que2)
+        
+    else:
+        st.write("<h3 style='text-align:center;'>PLEASE FILL IN THE FIELDS!</h3>",unsafe_allow_html=True)
+
+ 
 
 
 
+st.markdown("-------")
+st.markdown("<h1 style='text-align:center;'> Did You Know ?</h1>",unsafe_allow_html=True)
+st.image("https://www.intecbusinesscolleges.co.uk/Uploaded/1/Image/1in4people.jpg")
+st.markdown("<em style='text-align:center;'> according to the World Health Organization </em>",unsafe_allow_html=True)
+st.markdown("-------")
+st.markdown("<h1 style='text-align:center;'>Practice self-care, and always stay connected. </h1>",unsafe_allow_html=True)
 
-
-
-
+## Display data table
+with st.expander("See Table"):
+    st.dataframe(df1)
+    st.dataframe(df2)
 
 
 
