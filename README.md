@@ -1,6 +1,7 @@
 # Streamlit-with-Snowflake
 ## MentalMuse : AI FOR MENTAL HEALTH
 ### *By Samuel Waweru*
+### Link: https://mentalmuse.streamlit.app/ 
 -----------------
 ### TABLE OF CONTENT
 - About the Project
