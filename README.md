@@ -1,6 +1,7 @@
 # Streamlit-with-Snowflake
 ## MentalMuse : AI FOR MENTAL HEALTH
 ### *By Samuel Waweru*
+### Link: https://mentalmuse.streamlit.app/ 
 -----------------
 ### TABLE OF CONTENT
 - About the Project
@@ -47,7 +48,7 @@ they offer dapending on the level of depression and stress generated.
 - Natural Language Processing
 
 For this part , I have utilzed the bert-base-multilingual-uncased-sentiment to carry out the classification of the users input.
-It is finetuned for sentiment analysis on product reviews in six languages: English, Dutch, German, French, Spanish and Italian. It predicts the sentiment of the the input as a number of stars (between 1 and 5).
+It is finetuned for sentiment analysis on feedback in six languages: English, Dutch, German, French, Spanish and Italian. It predicts the sentiment of the the input as a number of stars (between 1 and 5).
 
 1 - Very Negative
 
