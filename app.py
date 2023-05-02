@@ -163,11 +163,8 @@ st.markdown("<em style='text-align:center;'> according to the World Health Organ
 st.markdown("-------")
 st.markdown("<h1 style='text-align:center;'>Practice self-care, and always stay connected. </h1>",unsafe_allow_html=True)
 
-## Display data table
-with st.expander("See Table"):
-    st.dataframe(df1)
-    st.dataframe(df2)
-
+st.markdown("<h4 style='text-align:center;'> Want to contribute to the project ?</h4>",unsafe_allow_html=True)
+st.markdown("#### Contact Samuel Waweru, Tel:+254792022398")
 
 
 
