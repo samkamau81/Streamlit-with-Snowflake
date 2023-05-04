@@ -7,5 +7,7 @@ textColor = '#FAFAFA'
 
 
 [server]
-headless = true
 port = 8501
+
+[global]
+developmentMode = false
