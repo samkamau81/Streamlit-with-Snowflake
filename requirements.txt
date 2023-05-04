@@ -1,5 +1,6 @@
-streamlit
+streamlit==1.22.0
 transformers==4.12.5
 torch==1.10.0
 bs4==0.0.1
+pip=23.0.1
 snowflake-snowpark-python
