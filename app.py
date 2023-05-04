@@ -19,7 +19,7 @@ session = create_session()
 st.success("Connected to Snowflake!")
 
 # Load data table
-@st.cache_data(ttl=3600)
+@st.cache_data(max_entries=10000)
 def load_data(table_name):
     ## Read in data table
     table = session.table(table_name)
