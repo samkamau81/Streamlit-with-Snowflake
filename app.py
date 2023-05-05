@@ -30,6 +30,7 @@ def load_data(table_name):
     return table
 
 # Comming up with functions
+@st.cache_data
 def causes(text): 
     # determines the major cause of stress an individual is facing
     family=0
@@ -58,13 +59,15 @@ def causes(text):
     if sum!=0:
         st.markdown("<h3 style='text-align:center;'>Environment that contributes the most to your issue is as shown; </h3>",unsafe_allow_html=True)
         st.bar_chart(df0, width=200, height=200, use_container_width=True)
-    
+        
+@st.cache_data   
 def predict_polarity(text):
     #determines the polarity of each answer given by an individual
     tokens = tokenizer.encode(text, return_tensors='pt')
     result = model(tokens)
     return int(torch.argmax(result.logits))+1
 
+@st.cache_data
 def avg_sentiment(lis1,lis2):
     f_val=[]
     #determines the average putting into consideration weight
