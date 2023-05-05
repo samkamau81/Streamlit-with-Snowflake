@@ -8,13 +8,18 @@ from snowflake.snowpark import Session
 
 #instantiate NLP model
 @st.cache_resource
-def load_model():
+def load_tokenizer():
     tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+    return tokenizer
+my_tok=load_tokenizer()
+
+@st.cache_resource
+def load_model():
     model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
-    return tokenizer, model
+    return model
 
 mm_mod=load_model()
-mm_mod
+
 # Establish Snowflake session
 @st.cache_resource
 def create_session():
@@ -68,8 +73,8 @@ def causes(text):
 @st.cache_data   
 def predict_polarity(text):
     #determines the polarity of each answer given by an individual
-    tokens = tokenizer.encode(text, return_tensors='pt')
-    result = model(tokens)
+    tokens = my_tok.encode(text, return_tensors='pt')
+    result = mm_mod(tokens)
     return int(torch.argmax(result.logits))+1
 
 @st.cache_data
