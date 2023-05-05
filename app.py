@@ -7,9 +7,14 @@ from bs4 import BeautifulSoup
 from snowflake.snowpark import Session
 
 #instantiate NLP model
-tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
-model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+@st.cache_resource
+def load_model():
+    tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+    model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+    return tokenizer, model
 
+mm_mod=load_model()
+mm_mod
 # Establish Snowflake session
 @st.cache_resource
 def create_session():
