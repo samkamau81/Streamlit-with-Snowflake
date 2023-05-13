@@ -16,7 +16,7 @@
 ## About the Project
 ![github1](https://user-images.githubusercontent.com/63351043/235633634-3a0c43a6-0066-420f-8618-a851d9e27703.JPG)
 
-This is an AI powered app that uses NLP to assess the mental state of a user an then uses data stored in Snowflake database i.e Location of Psychologists and Psychiatrists within their *county*. it utilizes Snowflake python connector 2 ,to connect the streamlit app with the database and nlp-bert-base-multilingual-uncased-sentiment algorithm to determine the polarity of the user.
+This is an AI powered app that uses NLP to assess the mental state of a user an then uses data stored in Snowflake database i.e Location of Psychologists and Psychiatrists within their *county*. it utilizes Snowflake snowpark python ,to connect the streamlit app with the database and nlp-bert-base-multilingual-uncased-sentiment algorithm to determine the polarity of the user.
 
 ### How does it work ;
 Once the user has accessed the MentalMuse app , he/she answers questions in a questionnaire. Each question carries its own weight, depending on the relevance of the question in determining the mental state of the individual. Once the polarity of the answer they have given is predicted , it is then multiplied by the weight. This technique improves the accuracy of the prediction i.e. degree of their mental state. 
